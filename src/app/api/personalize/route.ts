@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+export const dynamic = "force-dynamic";
 import OpenAI from "openai";
 import * as cheerio from "cheerio";
 import type { PersonalizationResult, CROChange } from "@/lib/types";
