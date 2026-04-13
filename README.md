@@ -1,63 +1,41 @@
-# TrooSync 🚀
+# TrooSync ⚡
 
-**Turn any ad creative into a perfectly matched, CRO-optimized landing page in seconds.**
+> AI-powered landing page personalizer — powered by **Grok** (xAI)
 
-Built for the Troopod AI PM Assignment. Powered by Claude 3.5 Sonnet.
-
----
-
-## Features
-- 🎯 **AI Ad Analysis** — Claude Vision reads tone, emotion, offer, CTA style from your ad
-- 🌐 **Live Page Fetching** — Extracts and audits any landing page HTML
-- ✨ **Full Personalization** — Rewrites copy, headlines, CTAs to match your ad
-- 📊 **CRO Score + A/B Simulator** — Real uplift prediction and change breakdown
-- 🔄 **3 AI Variants** — Pick the best version
-- 💬 **AI Tweak Chat** — "Make the headline more urgent" → instant change
-- 🎨 **Side-by-Side Preview** — Original iframe vs live-editable enhanced page
-- 🔥 **CRO Heatmap Overlay** — Visual attention zones
-- 📥 **Export HTML** — Download ready-to-deploy enhanced page
+Upload any ad creative + paste a landing page URL → Grok analyzes both and delivers a CRO-optimized, ad-matched version in seconds.
 
 ---
 
-## Tech Stack
+## 🚀 One-Click Deploy to Vercel
 
-- **Next.js 15** (App Router) + **React 19** + **TypeScript**
-- **Tailwind CSS** + **shadcn/ui** + clsx + tailwind-merge
-- **Framer Motion** — Page transitions, scroll animations
-- **React Three Fiber** + **@react-three/drei** — 3D hero scene & neural brain
-- **Vercel AI SDK** + **Anthropic Claude 3.5 Sonnet** — Vision + CRO generation
-- **Supabase** — Auth + storage (for uploaded ad creatives)
-- **Zustand** — Global state management
-- **Cheerio** — Server-side page HTML extraction
-- **React Diff Viewer** — Before/after code diffs
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Abhishek370914/TrooSync&env=GROK_API_KEY,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY&envDescription=API+keys+required+for+TrooSync&envLink=https://github.com/Abhishek370914/TrooSync%23environment-variables&project-name=troosync&repository-name=TrooSync)
 
 ---
 
-## Quick Start
+## 🛠 Manual Setup
 
 ### 1. Clone & Install
 
 ```bash
-cd /path/to/TrooSync
+git clone https://github.com/Abhishek370914/TrooSync.git
+cd TrooSync
 npm install --legacy-peer-deps
 ```
 
-> **Note:** `--legacy-peer-deps` is required because R3F v9-alpha has a peer dep conflict with React 19.
-
-### 2. Configure Environment
+### 2. Environment Variables
 
 ```bash
 cp .env.example .env.local
 ```
 
 Fill in `.env.local`:
-```env
-ANTHROPIC_API_KEY=sk-ant-...
-NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJh...
-SUPABASE_SERVICE_ROLE_KEY=eyJh...
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
+
+| Variable | Where to get it |
+|---|---|
+| `GROK_API_KEY` | [console.x.ai](https://console.x.ai) → API Keys |
+| `NEXT_PUBLIC_SUPABASE_URL` | [supabase.com](https://supabase.com/dashboard) → Settings → API |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Settings → API → anon public |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Settings → API → service_role |
 
 ### 3. Run Locally
 
@@ -69,82 +47,46 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## Deploy to Vercel (One-Click)
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-org/troosync)
-
-Or manually:
+## ☁️ Deploy to Vercel
 
 ```bash
-npm install -g vercel
-vercel
+npx vercel
 ```
 
-Set the same environment variables in your Vercel Project Settings.
+Then add environment variables in **Vercel Dashboard → Project → Settings → Environment Variables**.
 
-The `vercel.json` is pre-configured:
-- Max function duration: 60 seconds (for AI processing)
-- Region: `iad1` (US East)
+After adding keys, click **Redeploy**.
 
 ---
 
-## How It Works
+## 🧠 Tech Stack
 
-1. **Upload Ad Creative** → image, video, GIF, or URL
-2. **Paste Landing Page URL** → any publicly accessible page
-3. **AI Personalizes** →
-   - Claude Vision analyzes ad tone, emotion, offer, CTA style
-   - Cheerio fetches and cleans the landing page HTML
-   - Claude performs deep CRO audit against the ad
-   - Claude generates a modified HTML version with personalized copy
-4. **Side-by-Side Preview** → Original (iframe) vs Enhanced (live-editable)
-5. **Export or Tweak** → Download HTML or use AI chat to refine
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 15 (App Router) |
+| AI | Grok (xAI) via OpenAI-compatible API |
+| Animations | Framer Motion + Canvas 2D |
+| State | Zustand |
+| Scraping | Cheerio |
+| Auth/Storage | Supabase |
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 src/
-├── app/
-│   ├── layout.tsx          # Root layout with fonts + toasts
-│   ├── page.tsx            # Main page with state machine
-│   ├── globals.css         # Design system (glass, glow, cyber grid)
-│   └── api/
-│       ├── personalize/    # Main AI pipeline (stream SSE)
-│       └── tweak/          # AI single-instruction tweak
-├── components/
-│   ├── Navbar.tsx
-│   ├── Hero.tsx            # Hero + 3D scene wrapper
-│   ├── HeroScene.tsx       # React Three Fiber 3D canvas
-│   ├── FeaturesSection.tsx
-│   ├── BuilderDashboard.tsx # Main input form
-│   ├── AdUpload.tsx        # Drag & drop + URL input
-│   ├── ProcessingScreen.tsx # Neural brain 3D animation
-│   ├── ResultsView.tsx     # Side-by-side + tabs + analytics
-│   └── Footer.tsx
-└── lib/
-    ├── types.ts            # TypeScript interfaces
-    ├── store.ts            # Zustand global store
-    ├── utils.ts            # cn() utility
-    └── supabase.ts         # Supabase client
+  app/
+    api/
+      personalize/    # Grok vision + CRO endpoint
+      tweak/          # Iterative AI edit endpoint
+  components/
+    Hero.tsx          # Animated hero section
+    BuilderDashboard  # Main input UI
+    ProcessingScreen  # Neural engine loading screen
+    ResultsView       # Side-by-side preview + analytics
 ```
 
 ---
 
-## Edge Cases Handled
-
-| Scenario | Handling |
-|----------|----------|
-| Broken URL | Graceful error with retry + demo load |
-| Blocked scraper | Error state with helpful message |
-| AI parse failure | Fallback to original HTML + low score |
-| Large HTML (>40KB) | Truncated for Claude context window |
-| No API key | Error toast with instructions |
-
----
-
-## License
-
-MIT — Built for the Troopod AI PM Assignment.
-# TrooSync
+Built for the Troopod AI PM Assignment · Powered by Grok ⚡

@@ -16,7 +16,7 @@ export default function Footer() {
         </div>
 
         <p className="text-white/25 text-sm text-center">
-          Built for the Troopod AI PM Assignment · Powered by Claude 3.5 Sonnet
+          Built for the Troopod AI PM Assignment · Powered by Grok
         </p>
 
         <div className="flex items-center gap-4 text-white/30">

@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+// xAI Grok — OpenAI-compatible API
+const grok = new OpenAI({
+  apiKey: process.env.GROK_API_KEY,
+  baseURL: "https://api.x.ai/v1",
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,30 +15,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing html or instruction" }, { status: 400 });
     }
 
-    const truncated = html.length > 30000 ? html.substring(0, 30000) + "<!-- truncated -->" : html;
+    const truncated = html.length > 25000 ? html.substring(0, 25000) + "<!-- truncated -->" : html;
 
-    const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+    const response = await grok.chat.completions.create({
+      model: "grok-3-beta",
       max_tokens: 4096,
       messages: [
         {
+          role: "system",
+          content: "You are an expert landing page editor powered by Grok. Make ONLY the requested change to the HTML. Return ONLY the modified HTML — no explanation, no markdown fences.",
+        },
+        {
           role: "user",
-          content: `You are an expert landing page editor. Make ONLY the following change to this HTML page:
-
-Instruction: "${instruction}"
-
-Current HTML:
-\`\`\`html
-${truncated}
-\`\`\`
-
-Return ONLY the modified HTML document. No explanation, no markdown, just the HTML.`,
+          content: `Instruction: "${instruction}"\n\nHTML:\n${truncated}`,
         },
       ],
     });
 
-    const rawText = response.content[0].type === "text" ? response.content[0].text : "";
-    
+    const rawText = response.choices[0]?.message?.content || "";
+
     // Strip markdown code fences if present
     let resultHtml = rawText.trim();
     const match = resultHtml.match(/```(?:html)?\s*([\s\S]*?)```/);

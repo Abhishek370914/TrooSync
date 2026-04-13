@@ -6,9 +6,9 @@ import { useTrooSyncStore } from "@/lib/store";
 import { Sparkles, Globe, Zap, ShieldCheck, Brain, CheckCircle2 } from "lucide-react";
 
 const STEPS = [
-  { id: "analyzing-ad",  icon: Sparkles,    label: "Vision Analysis",  desc: "Claude reads your ad tone, emotion, offer & CTA style" },
+  { id: "analyzing-ad",  icon: Sparkles,    label: "Vision Analysis",  desc: "Grok reads your ad tone, emotion, offer & CTA style" },
   { id: "fetching-page", icon: Globe,        label: "Page Audit",       desc: "Fetching live HTML and running full CRO analysis" },
-  { id: "generating",    icon: Brain,        label: "Neural Engine",    desc: "Claude 3.5 Sonnet is personalizing your landing page" },
+  { id: "generating",    icon: Brain,        label: "Neural Engine",    desc: "Grok is personalizing your landing page" },
   { id: "optimizing",   icon: Zap,          label: "CRO Magic",        desc: "Applying 2026 conversion principles & heuristics" },
   { id: "finalizing",   icon: ShieldCheck,  label: "Verification",     desc: "Sanitizing code & finalizing the enhanced version" },
 ];

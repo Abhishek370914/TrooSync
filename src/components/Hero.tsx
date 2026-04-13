@@ -86,7 +86,7 @@ export default function Hero() {
               animation: "glow-pulse 1.5s ease-in-out infinite alternate",
             }} />
             <span style={{ fontSize: 12, fontWeight: 700, color: "#00f5ff", letterSpacing: "0.06em" }}>
-              POWERED BY CLAUDE 3.5 SONNET
+              POWERED BY GROK
             </span>
           </motion.div>
 
