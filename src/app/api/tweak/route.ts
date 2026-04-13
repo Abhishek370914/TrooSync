@@ -1,12 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
-import OpenAI from "openai";
-
-// xAI Grok — OpenAI-compatible API
-const grok = new OpenAI({
-  apiKey: process.env.GROK_API_KEY,
-  baseURL: "https://api.x.ai/v1",
-});
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,22 +11,35 @@ export async function POST(request: NextRequest) {
 
     const truncated = html.length > 25000 ? html.substring(0, 25000) + "<!-- truncated -->" : html;
 
-    const response = await grok.chat.completions.create({
-      model: "grok-3-beta",
-      max_tokens: 4096,
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert landing page editor powered by Grok. Make ONLY the requested change to the HTML. Return ONLY the modified HTML — no explanation, no markdown fences.",
-        },
-        {
-          role: "user",
-          content: `Instruction: "${instruction}"\n\nHTML:\n${truncated}`,
-        },
-      ],
+    const response = await fetch("https://api.x.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.GROK_API_KEY || "dummy"}`,
+      },
+      body: JSON.stringify({
+        model: "grok-3-beta",
+        max_tokens: 4096,
+        messages: [
+          {
+            role: "system",
+            content: "You are an expert landing page editor powered by Grok. Make ONLY the requested change to the HTML. Return ONLY the modified HTML — no explanation, no markdown fences.",
+          },
+          {
+            role: "user",
+            content: `Instruction: "${instruction}"\n\nHTML:\n${truncated}`,
+          },
+        ],
+      }),
     });
 
-    const rawText = response.choices[0]?.message?.content || "";
+    if (!response.ok) {
+      const errorText = await response.text();
+      return NextResponse.json({ error: `Grok API Error: ${response.status} - ${errorText}` }, { status: response.status });
+    }
+
+    const data = await response.json();
+    const rawText = data.choices[0]?.message?.content || "";
 
     // Strip markdown code fences if present
     let resultHtml = rawText.trim();

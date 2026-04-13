@@ -406,7 +406,7 @@ export default function ResultsView() {
             </div>
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>AI Tweak</div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>Describe a change and Claude will apply it instantly</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>Describe a change and Grok will apply it instantly</div>
             </div>
           </div>
 

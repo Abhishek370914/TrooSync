@@ -5,7 +5,7 @@ import { Toaster } from "react-hot-toast";
 export const metadata: Metadata = {
   title: "TrooSync — AI Landing Page Personalizer",
   description:
-    "Turn any ad creative into a perfectly matched, CRO-optimized landing page in seconds. Powered by Claude AI.",
+    "Turn any ad creative into a perfectly matched, CRO-optimized landing page in seconds. Powered by Grok.",
   keywords: [
     "AI landing page",
     "CRO optimization",

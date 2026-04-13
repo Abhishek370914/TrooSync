@@ -7,14 +7,14 @@ import {
 } from "lucide-react";
 
 const FEATURES = [
-  { icon: Eye,          title: "Claude Vision Analysis",  desc: "AI reads your ad — tone, emotion, offer, CTA style — extracting everything that makes it convert.", color: "#00f5ff" },
+  { icon: Eye,          title: "Grok Vision Analysis",  desc: "AI reads your ad — tone, emotion, offer, CTA style — extracting everything that makes it convert.", color: "#00f5ff" },
   { icon: Globe,        title: "Live Page Fetching",       desc: "Paste any URL. We fetch the real HTML and audit every CRO element: headlines, CTAs, trust signals.", color: "#a855f7" },
   { icon: Zap,          title: "Personalized Copy",        desc: "Every headline, subheadline, and CTA is rewritten to match your ad's messaging and emotional tone.", color: "#f59e0b" },
   { icon: Layers,       title: "Side-by-Side Preview",     desc: "Compare original vs enhanced in real-time. Edit the enhanced version live with contenteditable.", color: "#10b981" },
   { icon: BarChart2,    title: "CRO Score & Analytics",    desc: "CRO score out of 100, predicted conversion lift %, and A/B test simulation with impact breakdown.", color: "#ff00ff" },
   { icon: MessageSquare,title: "AI Tweak Chat",            desc: '"Make the headline more urgent" — AI applies changes to the live preview instantly.', color: "#06b6d4" },
   { icon: Code2,        title: "Export Clean HTML",        desc: "Download the fully enhanced page as production-ready HTML for Webflow, Framer, or any CMS.", color: "#ec4899" },
-  { icon: RefreshCw,    title: "3 AI Variants",            desc: "Claude generates 3 unique personalized versions. Pick the best or mix elements between them.", color: "#8b5cf6" },
+  { icon: RefreshCw,    title: "3 AI Variants",            desc: "Grok generates 3 unique personalized versions. Pick the best or mix elements between them.", color: "#8b5cf6" },
   { icon: Shield,       title: "Edge Case Handling",       desc: "Broken URLs, blocked scrapers — handled gracefully with helpful error states and one-click retry.", color: "#6366f1" },
 ];
 
