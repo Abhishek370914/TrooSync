@@ -108,20 +108,27 @@ export async function POST(request: NextRequest) {
           return;
         }
 
-        // Step 1: Analyze ad creative
+        // Step 1: Analyze ad creative — emit immediately
         send({ type: "progress", step: "analyzing-ad", message: "Analyzing ad creative with Claude Vision…" });
+        send({ type: "log", message: "Initializing Claude 3.5 Sonnet vision pipeline…" });
 
         let adImageBase64 = adBase64;
         let adImageMime = adMimeType as "image/jpeg" | "image/png" | "image/gif" | "image/webp";
 
         if (adFile) {
+          send({ type: "log", message: `Processing uploaded file: ${adFile.name} (${(adFile.size/1024).toFixed(1)}kb)` });
           const bytes = await adFile.arrayBuffer();
           adImageBase64 = Buffer.from(bytes).toString("base64");
           adImageMime = (adFile.type as typeof adImageMime) || "image/jpeg";
+        } else if (adUrl) {
+          send({ type: "log", message: `Ad reference URL detected: ${adUrl}` });
         }
 
-        // Step 2: Fetch landing page
+        send({ type: "log", message: "Ad creative ready for analysis ✓" });
+
+        // Step 2: Fetch landing page — emit before the slow network fetch
         send({ type: "progress", step: "fetching-page", message: "Fetching original landing page HTML…" });
+        send({ type: "log", message: `Fetching HTML from ${landingPageUrl}…` });
 
         let pageData: { html: string; title: string; description: string };
         try {
@@ -133,16 +140,18 @@ export async function POST(request: NextRequest) {
           return;
         }
 
+        send({ type: "log", message: `✓ Fetched page: "${pageData.title}" (${(pageData.html.length / 1024).toFixed(0)}kb)` });
+        send({ type: "log", message: "Running CRO element classification…" });
+
         // Truncate HTML to avoid context window overflow
         const truncatedHtml = pageData.html.length > 40000
           ? pageData.html.substring(0, 40000) + "\n<!-- ... HTML truncated for context window ... -->"
           : pageData.html;
 
-        // Step 3: CRO Audit
-        send({ type: "progress", step: "auditing-cro", message: "Running CRO audit against ad messaging…" });
-
-        // Step 4: Generate enhanced page
+        // Step 3 + 4: Generate enhanced page — emit immediately before the slow Claude call
         send({ type: "progress", step: "generating", message: "Generating personalized, CRO-optimized page…" });
+        send({ type: "log", message: "Sending vision + HTML context to Claude 3.5 Sonnet…" });
+        send({ type: "log", message: `Context size: ${Math.round((truncatedHtml.length + 1000) / 4)} tokens` });
 
         // Build content array for Claude
         const userContent: Anthropic.MessageParam["content"] = [];
@@ -150,29 +159,19 @@ export async function POST(request: NextRequest) {
         if (adImageBase64) {
           userContent.push({
             type: "image",
-            source: {
-              type: "base64",
-              media_type: adImageMime,
-              data: adImageBase64,
-            },
+            source: { type: "base64", media_type: adImageMime, data: adImageBase64 },
           });
-          userContent.push({
-            type: "text",
-            text: `Above is the ad creative image.`,
-          });
+          userContent.push({ type: "text", text: `Above is the ad creative image.` });
         } else if (adUrl) {
           userContent.push({
             type: "text",
-            text: `Ad creative URL/reference: ${adUrl}
-
-Please analyze what this ad likely contains based on the URL domain and context.`,
+            text: `Ad creative URL/reference: ${adUrl}\n\nPlease analyze what this ad likely contains based on the URL domain and context.`,
           });
         }
 
         userContent.push({
           type: "text",
-          text: `
-Landing Page URL: ${landingPageUrl}
+          text: `Landing Page URL: ${landingPageUrl}
 Page Title: ${pageData.title}
 Page Meta Description: ${pageData.description}
 
@@ -185,6 +184,26 @@ Please analyze the ad creative and original page, then produce a fully personali
 Return ONLY the JSON object as described in the system prompt. No markdown, no explanation outside the JSON.`,
         });
 
+        // Heartbeat: keep emitting log lines while Claude processes so the UI stays alive
+        let heartbeatCount = 0;
+        const HEARTBEAT_MSGS = [
+          "Parsing visual cues and emotional triggers…",
+          "Mapping ad tone to landing page copy…",
+          "Applying above-the-fold CRO heuristics…",
+          "Rewriting headlines for maximum relevance…",
+          "Enhancing CTA alignment with ad messaging…",
+          "Adding urgency signals and trust indicators…",
+          "Generating A/B variant structures…",
+          "Finalizing personalized HTML…",
+        ];
+        const heartbeat = setInterval(() => {
+          if (heartbeatCount < HEARTBEAT_MSGS.length) {
+            send({ type: "log", message: HEARTBEAT_MSGS[heartbeatCount++] });
+          }
+          if (heartbeatCount === 3) send({ type: "progress", step: "optimizing", message: "Applying CRO heuristics…" });
+          if (heartbeatCount === 6) send({ type: "progress", step: "finalizing", message: "Finalizing enhanced page…" });
+        }, 3500);
+
         const claudeResponse = await anthropic.messages.create({
           model: "claude-3-5-sonnet-20241022",
           max_tokens: 8192,
@@ -192,6 +211,9 @@ Return ONLY the JSON object as described in the system prompt. No markdown, no e
           system: buildSystemPrompt(),
           messages: [{ role: "user", content: userContent }],
         });
+
+        clearInterval(heartbeat);
+        send({ type: "log", message: "✓ Claude response received — parsing result…" });
 
         const rawContent = claudeResponse.content[0];
         if (rawContent.type !== "text") {

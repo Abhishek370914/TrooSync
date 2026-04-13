@@ -67,7 +67,8 @@ export default function BuilderDashboard() {
           if (data === "[DONE]") continue;
           try {
             const p = JSON.parse(data);
-            if (p.type === "progress") { setProcessingStep(p.step); appendStreamingText(p.message + "\n"); }
+            if (p.type === "progress") { setProcessingStep(p.step); }
+            else if (p.type === "log") { appendStreamingText(p.message + "\n"); }
             else if (p.type === "result") { setResult(p.result); toast.success("Page personalized! 🚀"); }
           } catch { /* ignore */ }
         }
