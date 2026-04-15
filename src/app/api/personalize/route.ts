@@ -117,18 +117,20 @@ export async function POST(request: NextRequest) {
         send({ type: "progress", step: "generating", message: "Grok is personalizing your page..." });
         send({ type: "log", message: "[GEN] Grok-4.1-Fast-Mode initializing..." });
 
-        const messages: any[] = [
-          { role: "system", content: buildSystemPrompt() },
-          { role: "user", content: [
-            { type: "text", text: `Target URL: ${landingPageUrl}\nLanding Page HTML: ${finalHtml}\n\nTask: Personalize to match the ad perfectly.` },
-          ]}
-        ];
-
+        let messages: any[] = [];
         if (finalImageBase64) {
-          (messages[1].content as any[]).push({
-            type: "image_url",
-            image_url: { url: `data:${finalImageMime};base64,${finalImageBase64}` }
-          });
+          messages = [
+            { role: "system", content: buildSystemPrompt() },
+            { role: "user", content: [
+                { type: "text", text: `Target URL: ${landingPageUrl}\nLanding Page HTML: ${finalHtml}\n\nTask: Personalize to match the ad perfectly.` },
+                { type: "image_url", image_url: { url: `data:${finalImageMime};base64,${finalImageBase64}` } }
+            ]}
+          ];
+        } else {
+          messages = [
+            { role: "system", content: buildSystemPrompt() },
+            { role: "user", content: `Target URL: ${landingPageUrl}\nLanding Page HTML: ${finalHtml}\n\nTask: Personalize to match the ad perfectly.` }
+          ];
         }
         
         // Fast heartbeat (every 1.5s)
@@ -159,11 +161,10 @@ export async function POST(request: NextRequest) {
           },
           signal: abortGrok.signal,
           body: JSON.stringify({
-            model: "grok-beta",
+            model: finalImageBase64 ? "grok-2-vision-1212" : "grok-2-1212",
             messages,
             temperature: 0.6,
-            max_tokens: 1500,
-            response_format: { type: "json_object" }
+            max_tokens: 1500
           }),
         });
         clearTimeout(grokTimeout);
@@ -172,11 +173,15 @@ export async function POST(request: NextRequest) {
 
         if (!grokResponse.ok) {
           const errText = await grokResponse.text();
-          throw new Error(`Grok Error: ${grokResponse.status}`);
+          console.error("GROK API FETCH ERROR:", grokResponse.status, errText);
+          throw new Error(`Grok Error ${grokResponse.status}: ${errText.substring(0, 50)}`);
         }
 
         const data = await grokResponse.json();
-        const rawJson = data.choices[0]?.message?.content || "{}";
+        let rawJson = data.choices[0]?.message?.content || "{}";
+        
+        // Robust JSON parsing (strip markdown)
+        rawJson = rawJson.replace(/```json/g, "").replace(/```/g, "").trim();
         
         const raw = JSON.parse(rawJson);
         const result: PersonalizationResult = {
@@ -200,6 +205,7 @@ export async function POST(request: NextRequest) {
         send({ type: "progress", step: "complete", message: "Personalization complete!" });
 
       } catch (err: any) {
+        console.error("GROK ROUTE CAUGHT ERROR:", err);
         if (heartbeat) clearInterval(heartbeat);
         send({ type: "error", error: err.message || "Internal error" });
       } finally {
