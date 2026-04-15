@@ -70,6 +70,7 @@ export default function BuilderDashboard() {
             if (p.type === "progress") { setProcessingStep(p.step); }
             else if (p.type === "log") { appendStreamingText(p.message + "\n"); }
             else if (p.type === "result") { setResult(p.result); toast.success("Page personalized! 🚀"); }
+            else if (p.type === "error") { throw new Error(p.error); }
           } catch { /* ignore */ }
         }
       }

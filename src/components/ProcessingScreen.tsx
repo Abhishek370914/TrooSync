@@ -149,17 +149,32 @@ export default function ProcessingScreen() {
 
         {/* ── Pulsing Brain Orb ── */}
         <motion.div
-          animate={{ scale: [1, 1.08, 1], rotate: [0, 3, -3, 0] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ 
+            scale: processingStep === "generating" ? [1, 1.15, 1] : [1, 1.08, 1],
+            rotate: processingStep === "generating" ? [0, 8, -8, 0] : [0, 3, -3, 0]
+          }}
+          transition={{ 
+            duration: processingStep === "generating" ? 0.8 : 5, 
+            repeat: Infinity, 
+            ease: "easeInOut" 
+          }}
           style={{ position: "relative" }}
         >
           {/* Outer ring */}
           {[1, 2, 3].map(i => (
             <motion.div key={i}
-              animate={{ opacity: [0.4, 0, 0.4], scale: [1, 1.5 + i * 0.3, 1] }}
-              transition={{ duration: 3, repeat: Infinity, delay: i * 0.6, ease: "easeOut" }}
+              animate={{ 
+                opacity: [0.4, 0, 0.4], 
+                scale: processingStep === "generating" ? [1, 1.8 + i * 0.4, 1] : [1, 1.5 + i * 0.3, 1] 
+              }}
+              transition={{ 
+                duration: processingStep === "generating" ? 0.6 : 3, 
+                repeat: Infinity, 
+                delay: i * (processingStep === "generating" ? 0.2 : 0.6), 
+                ease: "easeOut" 
+              }}
               style={{
-                position: "absolute", inset: -(i * 18),
+                position: "absolute", inset: -(i * (processingStep === "generating" ? 24 : 18)),
                 borderRadius: "50%",
                 border: `1px solid rgba(0,245,255,${0.3 - i * 0.08})`,
               }}
@@ -262,7 +277,18 @@ export default function ProcessingScreen() {
                     fontSize: 12, lineHeight: 1.5,
                     color: isActive ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.2)",
                   }}>
-                    {step.desc}
+                    {isActive && streamingText ? (
+                      <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        key={streamingText.split("\n").filter(Boolean).pop()}
+                        style={{ color: "#00f5ff", fontWeight: 500 }}
+                      >
+                        {streamingText.split("\n").filter(Boolean).pop()}
+                      </motion.span>
+                    ) : (
+                      step.desc
+                    )}
                   </div>
                 </div>
 
