@@ -65,13 +65,15 @@ export default function BuilderDashboard() {
           if (!line.startsWith("data: ")) continue;
           const data = line.slice(6);
           if (data === "[DONE]") continue;
+          let p;
           try {
-            const p = JSON.parse(data);
-            if (p.type === "progress") { setProcessingStep(p.step); }
-            else if (p.type === "log") { appendStreamingText(p.message + "\n"); }
-            else if (p.type === "result") { setResult(p.result); toast.success("Page personalized! 🚀"); }
-            else if (p.type === "error") { throw new Error(p.error); }
-          } catch { /* ignore */ }
+            p = JSON.parse(data);
+          } catch { continue; }
+          
+          if (p.type === "progress") { setProcessingStep(p.step); }
+          else if (p.type === "log") { appendStreamingText(p.message + "\n"); }
+          else if (p.type === "result") { setResult(p.result); toast.success("Page personalized! 🚀"); }
+          else if (p.type === "error") { throw new Error(p.error || "Server error"); }
         }
       }
     } catch (err: unknown) {
